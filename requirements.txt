@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+jinja2
+pandas
+yfinance
+httpx
+python-dotenv
+scipy
+pytest
+pytest-asyncio

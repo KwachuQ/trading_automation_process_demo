@@ -1,0 +1,15 @@
+[sierra_chart]
+data_dir = "C:/SierraChart/Data"
+nq_1min   = "NQM26[M]  1 Min  #1_GraphData.txt"
+qqq_1min  = "QQQ[M]  1 Min  #12_GraphData.txt"
+tick_file = "TICK-NYSE  1 Min  #3_GraphData.txt"
+vold_file = "VOLD-NYSE  1 Min  #4_GraphData.txt"
+
+[calendar]
+rapiapi_host = "economic-calendar-api-tradingeconomics.p.rapidapi.com"
+# Provide your RapidAPI key below or via environment variable RAPIDAPI_KEY
+# api_key = "your_api_key_here"
+
+[volatility]
+tickers = ["^VVIX", "^VIX"]
+ratio_thresholds = [5.0, 6.0]

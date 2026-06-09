@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+env/
+.env
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# Data and configurations (SENSITIVE)
+config/config.toml
+data/
+logs/
+reports/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp

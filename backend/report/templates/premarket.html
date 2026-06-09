@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pre-Market Report — {{ session_date }}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0c0d11;
+      --surface-1: #13151c;
+      --surface-2: #181b24;
+      --surface-3: #1e2230;
+      --border:    rgba(255, 255, 255, 0.06);
+      --border-2:  rgba(255, 255, 255, 0.18);
+      --text:      #e8edf5;
+      --text-2:    #c8d0dc;
+      --muted:     #8a95a8;
+      --dim:       #505868;
+      --accent:    #e8edf5;
+      --accent-bg: rgba(255, 255, 255, 0.08);
+      --up:        #00e676;
+      --up-bg:     rgba(0, 230, 118, 0.12);
+      --down:      #ff4455;
+      --down-bg:   rgba(255, 68, 85, 0.12);
+      --warn:      #f59e0b;
+      --warn-bg:   rgba(245, 158, 11, 0.12);
+      --neutral-bg:rgba(255, 255, 255, 0.05);
+      --font-ui:   'Inter', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --r:         6px;
+      --r-lg:      10px;
+      --sp-1:      4px;
+      --sp-2:      8px;
+      --sp-3:      12px;
+      --sp-4:      16px;
+      --sp-5:      20px;
+      --sp-6:      24px;
+    }
+
+    html { font-size: 13px; height: 100%; overflow: hidden; }
+    body {
+      font-family: var(--font-ui);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+      zoom: 1.1;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* ---- layout ---- */
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-areas:
+        "header   header    header"
+        "session  overnight vol"
+        "mtf      events    support";
+      gap: var(--sp-3);
+      padding: var(--sp-4);
+      height: calc(100vh / 1.1);
+      grid-template-rows: 44px 1fr 1fr;
+    }
+
+    /* ---- header ---- */
+    .topbar {
+      grid-area: header;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--sp-5);
+      height: 44px;
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+    }
+    .report-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .report-meta {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      color: var(--dim);
+      letter-spacing: 0.02em;
+    }
+
+    /* ---- card system ---- */
+    .card {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: var(--sp-4) var(--sp-5);
+      display: flex;
+      flex-direction: column;
+    }
+    .card-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: var(--sp-3);
+      padding-bottom: var(--sp-2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ---- status badge (unified) ---- */
+    .status {
+      display: inline-flex;
+      align-items: center;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 3px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      line-height: 1.4;
+    }
+    .status-up      { background: var(--up-bg);      color: var(--up); }
+    .status-down    { background: var(--down-bg);     color: var(--down); }
+    .status-warn    { background: var(--warn-bg);     color: var(--warn); }
+    .status-neutral { background: var(--neutral-bg);  color: var(--muted); }
+    .status-accent  { background: var(--accent-bg);   color: var(--accent); }
+
+    /* ---- unavailable / empty state ---- */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--sp-5);
+      border: 1px dashed var(--border-2);
+      border-radius: var(--r);
+      color: var(--dim);
+      font-size: 11px;
+      font-style: italic;
+    }
+
+    /* ---- grid area assignments ---- */
+    .session   { grid-area: session; }
+    .vol       { grid-area: vol; }
+    .mtf       { grid-area: mtf; }
+    .overnight { grid-area: overnight; }
+    .support   { grid-area: support; }
+    .events    { grid-area: events; }
+
+    /* ===== SESSION INDICATION (hero) ===== */
+    .session-hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: var(--sp-3);
+    }
+    .hero-label {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    .hero-label.exp-very-low,
+    .hero-label.exp-low      { color: var(--up); }
+    .hero-label.exp-moderate { color: var(--warn); }
+    .hero-label.exp-high,
+    .hero-label.exp-extreme  { color: var(--down); }
+
+    .hero-subline {
+      display: flex;
+      gap: var(--sp-2);
+      flex-wrap: wrap;
+    }
+
+    .kpi-row {
+      display: flex;
+      gap: var(--sp-2);
+      flex-wrap: wrap;
+      margin-top: var(--sp-1);
+    }
+    .kpi-badge {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: var(--sp-1) var(--sp-2);
+      font-size: 10px;
+      font-family: var(--font-mono);
+      color: var(--text-2);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .kpi-key {
+      color: var(--dim);
+      font-weight: 500;
+    }
+
+    .hero-range {
+      font-size: 13.8px;
+      color: var(--muted);
+      margin-top: var(--sp-1);
+    }
+
+    /* ===== MULTI-TIMEFRAME CONTEXT ===== */
+    .tf-rows { display: flex; flex-direction: column; gap: var(--sp-2); flex: 1; }
+    .tf-row {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      padding: var(--sp-2) var(--sp-3);
+      background: var(--surface-2);
+      border-radius: var(--r);
+    }
+    .tf-name {
+      font-size: 10px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      width: 14px;
+      flex-shrink: 0;
+    }
+    .tf-alignment {
+      margin-top: var(--sp-2);
+      padding-top: var(--sp-2);
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--up);
+    }
+
+    /* ===== VOLATILITY REGIME ===== */
+    .vol-hero {
+      display: flex;
+      align-items: baseline;
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-3);
+    }
+    .vol-class {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .vol-class.low    { color: var(--up); }
+    .vol-class.medium { color: var(--warn); }
+    .vol-class.high   { color: var(--down); }
+
+    .vol-kpis {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-2);
+      margin-bottom: var(--sp-3);
+    }
+    .vol-kpi-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--sp-1) var(--sp-3);
+      background: var(--surface-2);
+      border-radius: var(--r);
+    }
+    .vol-kpi-label {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .vol-kpi-val {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .vol-note {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.55;
+      border-left: 2px solid var(--border-2);
+      padding-left: var(--sp-3);
+      margin-top: var(--sp-2);
+    }
+
+    /* ===== OVERNIGHT ASSESSMENT ===== */
+    .checklist { display: flex; flex-direction: column; gap: var(--sp-2); flex: 1; }
+    .check-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--sp-2) var(--sp-3);
+      background: var(--surface-2);
+      border-radius: var(--r);
+      font-size: 12px;
+    }
+    .check-key {
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .check-val {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-2);
+      text-align: right;
+    }
+    .val-up   { color: var(--up); }
+    .val-down { color: var(--down); }
+
+    /* ===== SESSION SUPPORT ===== */
+    .insight-list { display: flex; flex-direction: column; gap: var(--sp-2); flex: 1; }
+    .insight-item {
+      font-size: 11px;
+      color: var(--text-2);
+      padding: var(--sp-2) var(--sp-3);
+      background: var(--surface-2);
+      border-radius: var(--r);
+      border-left: 3px solid var(--up);
+      line-height: 1.45;
+    }
+    .insight-item.warn { border-left-color: var(--warn); }
+    .insight-item.info { border-left-color: var(--dim); }
+
+    /* ===== ECONOMIC CALENDAR ===== */
+    .event-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      flex: 1;
+    }
+    .event-row {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      padding: var(--sp-2) var(--sp-3);
+      font-size: 11px;
+      border-bottom: 1px solid var(--border);
+    }
+    .event-row:last-child { border-bottom: none; }
+    .event-time {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--dim);
+      flex-shrink: 0;
+      width: 40px;
+    }
+    .event-name {
+      flex: 1;
+      color: var(--text-2);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .dashboard {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+          "header   header"
+          "session  session"
+          "overnight vol"
+          "mtf      events"
+          "support  support";
+        padding: var(--sp-3);
+        gap: var(--sp-2);
+      }
+    }
+    @media (max-width: 580px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "header"
+          "session"
+          "vol"
+          "mtf"
+          "overnight"
+          "support"
+          "events";
+        padding: var(--sp-2);
+      }
+      .topbar { flex-direction: column; height: auto; padding: var(--sp-3); gap: var(--sp-1); text-align: center; }
+      .hero-label { font-size: 22px; }
+    }
+
+    /* ===== PRINT ===== */
+    @media print {
+      .dashboard { display: block; min-height: auto; }
+      .card { break-inside: avoid; margin-bottom: 12px; border: 1px solid #ccc; }
+      body { background: #fff; color: #000; }
+      :root {
+        --bg: #fff; --surface-1: #fff; --surface-2: #f5f5f5; --surface-3: #eee;
+        --text: #111; --text-2: #333; --muted: #555; --dim: #888;
+        --border: #ddd; --border-2: #ccc;
+        --up: #00a650; --down: #cc1122; --accent: #333;
+      }
+      @page { margin: 15mm; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="dashboard">
+
+  <!-- ===== Header ===== -->
+  <header class="topbar">
+    <span class="report-title">Pre-Market Report</span>
+    <span class="report-meta">{{ session_date }} &middot; {{ generated_at }}</span>
+  </header>
+
+  <!-- ===== Session Indication (hero) ===== -->
+  {% set session_border = 'rgba(0,230,118,0.28)' if volatility_indication and volatility_indication.expectation in ['VERY_LOW','LOW'] else ('rgba(245,158,11,0.28)' if volatility_indication and volatility_indication.expectation == 'MODERATE' else 'rgba(255,68,85,0.28)') %}
+  <section class="card session" style="border-color: {{ session_border }}">
+    <div class="card-label">Session Indication</div>
+    {% if volatility_indication %}
+      {% set vi = volatility_indication %}
+      {% set exp = vi.expectation %}
+      <div class="session-hero">
+        {% if exp == "VERY_LOW" %}
+          <div class="hero-label exp-very-low">Volatility: very low</div>
+        {% elif exp == "LOW" %}
+          <div class="hero-label exp-low">Volatility: low</div>
+        {% elif exp == "MODERATE" %}
+          <div class="hero-label exp-moderate">Volatility: moderate</div>
+        {% elif exp == "HIGH" %}
+          <div class="hero-label exp-high">Volatility: high</div>
+        {% elif exp == "EXTREME" %}
+          <div class="hero-label exp-extreme">Volatility: very high</div>
+        {% else %}
+          <div class="hero-label exp-moderate">Volatility: {{ vi.expectation | lower | replace("_", " ") }}</div>
+        {% endif %}
+        <div class="hero-subline">
+          <span class="status {{ 'status-up' if vi.rvol_level in ['elevated', 'high'] else ('status-down' if vi.rvol_level == 'low' else 'status-neutral') }}">{{ vi.rvol_level | capitalize }} RVOL</span>
+          <span class="status {{ 'status-up' if vi.adr_trend == 'rising' else ('status-down' if vi.adr_trend == 'falling' else 'status-neutral') }}">{{ vi.adr_trend | capitalize }} ADR</span>
+          <span class="status {{ 'status-up' if vi.dvma_trend == 'rising' else ('status-down' if vi.dvma_trend == 'falling' else 'status-neutral') }}">{{ vi.dvma_trend | capitalize }} Vol MA</span>
+          <span class="status {{ 'status-up' if vi.gamma_regime == 'positive' else ('status-down' if vi.gamma_regime == 'negative' else 'status-neutral') }}">{{ vi.gamma_regime | capitalize }} Gamma</span>
+        </div>
+        {% if estimated_range is not none %}
+          <div class="hero-range">Estimated range: {{ estimated_range }} pts</div>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="empty-state">Session indication data unavailable</div>
+    {% endif %}
+  </section>
+
+  <!-- ===== VVIX/VIX Ratio ===== -->
+  {% set vol_border = 'rgba(0,230,118,0.28)' if volatility and volatility.classification == 'low' else ('rgba(245,158,11,0.28)' if volatility and volatility.classification == 'medium' else 'rgba(255,68,85,0.28)') %}
+  <section class="card vol" style="border-color: {{ vol_border }}">
+    <div class="card-label">VVIX / VIX Ratio</div>
+    {% if volatility %}
+      <div class="vol-hero">
+        <span class="vol-class {{ volatility.classification }}">{{ volatility.classification | upper }}</span>
+        <span class="status {{ 'status-up' if volatility.classification == 'low' else ('status-warn' if volatility.classification == 'medium' else 'status-down') }}">{{ volatility.classification | capitalize }}</span>
+      </div>
+      <div class="vol-kpis">
+        <div class="vol-kpi-row">
+          <span class="vol-kpi-label">VVIX</span>
+          <span class="vol-kpi-val">{{ "%.2f" | format(volatility.vvix) if volatility.vvix is not none else "N/A" }}</span>
+        </div>
+        <div class="vol-kpi-row">
+          <span class="vol-kpi-label">VIX</span>
+          <span class="vol-kpi-val">{{ "%.2f" | format(volatility.vix) if volatility.vix is not none else "N/A" }}</span>
+        </div>
+        <div class="vol-kpi-row">
+          <span class="vol-kpi-label">Ratio</span>
+          <span class="vol-kpi-val">{{ "%.2f" | format(volatility.ratio) if volatility.ratio is not none else "N/A" }}</span>
+        </div>
+      </div>
+      {% if volatility.classification == "low" %}
+        <p class="vol-note">Peak stress regime — fear realized, VVIX lags. Potential mean-revert.</p>
+      {% elif volatility.classification == "medium" %}
+        <p class="vol-note">Neutral zone — no strong expansion signal; monitor for directional drift.</p>
+      {% elif volatility.classification == "high" %}
+        <p class="vol-note">Calm before the storm — VIX low but VVIX elevated; hidden stress building.</p>
+      {% endif %}
+    {% else %}
+      <div class="empty-state">Volatility data unavailable</div>
+    {% endif %}
+  </section>
+
+  <!-- ===== Multi-Timeframe Context ===== -->
+  {% set mtf_pre = namespace(rising=0) %}
+  {% if timeframe_context %}
+    {% for tf_key in ["yearly","quarterly","monthly","weekly"] %}
+      {% set row = timeframe_context.get(tf_key) %}
+      {% if row and row.trend == "rising" %}{% set mtf_pre.rising = mtf_pre.rising + 1 %}{% endif %}
+    {% endfor %}
+  {% endif %}
+  {% set mtf_border = 'rgba(0,230,118,0.28)' if mtf_pre.rising >= 3 else ('rgba(245,158,11,0.28)' if mtf_pre.rising == 2 else 'rgba(255,68,85,0.28)') %}
+  {% set mtf_text_color = 'var(--up)' if mtf_pre.rising >= 3 else ('var(--warn)' if mtf_pre.rising == 2 else 'var(--down)') %}
+  <section class="card mtf" style="border-color: {{ mtf_border }}">
+    <div class="card-label">Multi-Timeframe Context</div>
+    {% if timeframe_context %}
+      {% set tf_labels = [("yearly","Y"),("quarterly","Q"),("monthly","M"),("weekly","W")] %}
+      {% set ns = namespace(rising=0) %}
+      <div class="tf-rows">
+        {% for tf_key, tf_short in tf_labels %}
+          {% set row = timeframe_context.get(tf_key) %}
+          {% if row %}
+            {% if row.trend == "rising" %}{% set ns.rising = ns.rising + 1 %}{% endif %}
+            <div class="tf-row">
+              <span class="tf-name">{{ tf_short }}</span>
+              {% if row.trend == "rising" %}
+                <span class="status status-up">Rising</span>
+              {% elif row.trend == "falling" %}
+                <span class="status status-down">Falling</span>
+              {% else %}
+                <span class="status status-neutral">Sideways</span>
+              {% endif %}
+              {% set bp = row.band_position %}
+              {% if bp == "imbalance_up" %}
+                <span class="status status-up">Imbalance Up</span>
+              {% elif bp == "imbalance_down" %}
+                <span class="status status-down">Imbalance Down</span>
+              {% else %}
+                <span class="status status-neutral">Inside Value</span>
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="tf-alignment" style="color: {{ mtf_text_color }}">{{ ns.rising }}/4 HTF alignment</div>
+    {% else %}
+      <div class="empty-state">Timeframe data unavailable</div>
+    {% endif %}
+  </section>
+
+  <!-- ===== Overnight Assessment ===== -->
+  {% set on_pre = namespace(border='rgba(255,255,255,0.06)') %}
+  {% if overnight and overnight.get('eth_range_above_adr') is not none %}
+    {% set on_pre.border = 'rgba(0,230,118,0.28)' if overnight.eth_range_above_adr else 'rgba(255,68,85,0.28)' %}
+  {% endif %}
+  <section class="card overnight" style="border-color: {{ on_pre.border }}">
+    <div class="card-label">Overnight Assessment</div>
+    {% if overnight %}
+      <div class="checklist">
+        {% if volatility_indication %}
+          <div class="check-row">
+            <span class="check-key">RVOL</span>
+            <span class="check-val {{ 'val-up' if volatility_indication.rvol_level in ['elevated', 'high'] else ('val-down' if volatility_indication.rvol_level == 'low' else '') }}">
+              {{ "%.1f" | format(volatility_indication.rvol) if volatility_indication.rvol is not none else "N/A" }}
+            </span>
+          </div>
+        {% endif %}
+        {% if 'cd_above_zero' in overnight %}
+          <div class="check-row">
+            <span class="check-key">Delta</span>
+            <span class="check-val">
+              <span class="{{ 'val-up' if overnight.cd_above_zero else 'val-down' }}">{{ 'above 0' if overnight.cd_above_zero else 'below 0' }}</span>
+              {%- if 'cd_above_ma' in overnight -%}
+                <span style="color: var(--muted)">&nbsp;/&nbsp;</span><span class="{{ 'val-up' if overnight.cd_above_ma else 'val-down' }}">{{ 'above MA' if overnight.cd_above_ma else 'below MA' }}</span>
+              {%- endif -%}
+            </span>
+          </div>
+        {% endif %}
+        {% if 'price_vs_eth_bands' in overnight and overnight.price_vs_eth_bands is not none %}
+          <div class="check-row">
+            <span class="check-key">Price</span>
+            <span class="check-val">{{ overnight.price_vs_eth_bands }}</span>
+          </div>
+        {% endif %}
+        {% if 'eth_range' in overnight and overnight.eth_range is not none %}
+          <div class="check-row">
+            <span class="check-key">ETH range</span>
+            <span class="check-val {{ 'val-down' if (overnight.eth_range_above_adr is not none and not overnight.eth_range_above_adr) else 'val-up' }}">
+              {{ "%.2f" | format(overnight.eth_range) }}
+              {% if 'eth_range_above_adr' in overnight and overnight.eth_range_above_adr is not none %}
+                {{ '>' if overnight.eth_range_above_adr else '<' }}
+                ADR {{ "%.2f" | format(overnight.adr) if overnight.adr is not none }}
+              {% endif %}
+            </span>
+          </div>
+        {% endif %}
+        {% if 'volume_ma' in overnight and overnight.volume_ma is not none %}
+          <div class="check-row">
+            <span class="check-key">Yday vol MA</span>
+            <span class="check-val">{{ overnight.volume_ma | int }}</span>
+          </div>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="empty-state">Overnight data unavailable</div>
+    {% endif %}
+  </section>
+
+  <!-- ===== Session Support ===== -->
+  {% set sup_pre = namespace(rising=0) %}
+  {% if timeframe_context %}
+    {% for tf_key in ["yearly","quarterly","monthly","weekly"] %}
+      {% set row = timeframe_context.get(tf_key) %}
+      {% if row and row.trend == "rising" %}{% set sup_pre.rising = sup_pre.rising + 1 %}{% endif %}
+    {% endfor %}
+  {% endif %}
+  {% set support_border = 'rgba(0,230,118,0.28)' if sup_pre.rising >= 3 else ('rgba(245,158,11,0.28)' if sup_pre.rising <= 1 else 'rgba(255,255,255,0.06)') %}
+  <section class="card support" style="border-color: {{ support_border }}">
+    <div class="card-label">Session Support</div>
+    <div class="insight-list">
+      {% if timeframe_context %}
+        {% set ns2 = namespace(rising=0) %}
+        {% for tf_key in ["yearly","quarterly","monthly","weekly"] %}
+          {% set row = timeframe_context.get(tf_key) %}
+          {% if row and row.trend == "rising" %}{% set ns2.rising = ns2.rising + 1 %}{% endif %}
+        {% endfor %}
+        {% if ns2.rising >= 3 %}
+          <div class="insight-item">HTF supports upside context ({{ ns2.rising }}/4 rising)</div>
+        {% elif ns2.rising <= 1 %}
+          <div class="insight-item warn">HTF bias mixed or bearish ({{ ns2.rising }}/4 rising)</div>
+        {% else %}
+          <div class="insight-item info">HTF alignment partial ({{ ns2.rising }}/4 rising)</div>
+        {% endif %}
+      {% endif %}
+      {% if volatility %}
+        {% if volatility.classification == "medium" %}
+          <div class="insight-item info">VVIX/VIX ratio neutral — no strong expansion signal</div>
+        {% elif volatility.classification == "high" %}
+          <div class="insight-item warn">VVIX/VIX ratio elevated — watch for expansion</div>
+        {% elif volatility.classification == "low" %}
+          <div class="insight-item">VVIX/VIX ratio — potential mean-revert environment</div>
+        {% endif %}
+      {% endif %}
+      {% if volatility_indication %}
+        {% set exp = volatility_indication.expectation %}
+        {% if exp in ["VERY_LOW", "LOW"] %}
+          <div class="insight-item">Session profile: low-vol day expected</div>
+        {% elif exp == "MODERATE" %}
+          <div class="insight-item info">Session profile: moderate vol — range day possible</div>
+        {% elif exp in ["HIGH", "EXTREME"] %}
+          <div class="insight-item warn">Session profile: high vol — directional move risk</div>
+        {% endif %}
+      {% endif %}
+      {% if calendar %}
+        {% set ns3 = namespace(has_high=false) %}
+        {% for ev in calendar %}
+          {% if ev.impact_label == "High" %}{% set ns3.has_high = true %}{% endif %}
+        {% endfor %}
+        {% if ns3.has_high %}
+          <div class="insight-item warn">High-impact event scheduled — watch event windows</div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- ===== Economic Calendar ===== -->
+  {% set cal_has_high = calendar and calendar | selectattr('impact_label', 'equalto', 'High') | list | length > 0 %}
+  {% set cal_has_medium = calendar and calendar | selectattr('impact_label', 'equalto', 'Medium') | list | length > 0 %}
+  {% set cal_border = 'rgba(255,68,85,0.28)' if cal_has_high else ('rgba(245,158,11,0.28)' if cal_has_medium else 'rgba(0,230,118,0.28)') %}
+  <section class="card events" style="border-color: {{ cal_border }}">
+    <div class="card-label">Economic Calendar</div>
+    {% if calendar %}
+      <div class="event-list">
+        {% for event in calendar %}
+          <div class="event-row">
+            <span class="event-time">{{ event.date[11:16] if event.date | length > 10 else event.date }}</span>
+            <span class="event-name">{{ event.event_name }}</span>
+            {% set impact = event.impact_label | lower %}
+            <span class="status {{ 'status-down' if impact == 'high' else ('status-warn' if impact == 'medium' else 'status-neutral') }}">{{ event.impact_label }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">No events scheduled for this session</div>
+    {% endif %}
+  </section>
+
+</div>
+</body>
+</html>
