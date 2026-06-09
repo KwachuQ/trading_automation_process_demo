@@ -89,8 +89,6 @@ python backend/scripts/seed_demo_data.py
 
 ### Start the application
 
-If you have historical pre-market HTML reports you'd like to share as examples, place them in the `demo_reports/` directory.
-
 **Backend:**
 ```bash
 # Terminal 1
@@ -183,5 +181,3 @@ Rules are edited through the **Feature Store** page in the UI. Changes take effe
 ## Reports
 
 Generated reports are saved as `reports/YYYY-MM-DD_premarket.html` — self-contained HTML files with all data inline. No external dependencies are required to view them.
-
-To share historical examples in this public demo, place your sample HTML files into the `demo_reports/` folder (which is tracked by Git, unlike the private `reports/` folder).

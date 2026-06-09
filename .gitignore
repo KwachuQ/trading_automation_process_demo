@@ -16,8 +16,6 @@ dist/
 config/config.toml
 data/
 logs/
-reports/
-!demo_reports/
 
 # IDE / OS
 .vscode/

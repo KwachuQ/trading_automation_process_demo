@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pre-Market Report — 2026-04-15</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      color: #1a1a2e;
+      background: #f5f5f7;
+      padding: 24px;
+    }
+
+    /* ---- header ---- */
+    .report-header {
+      background: #1a1a2e;
+      color: #fff;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+    .report-header h1 { font-size: 22px; font-weight: 700; }
+    .report-header .meta { font-size: 12px; color: #a0aec0; margin-top: 4px; }
+
+    /* ---- section cards ---- */
+    .section {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    .section h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #ebf4ff;
+    }
+
+    /* ---- generic table ---- */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th {
+      background: #f7fafc;
+      text-align: left;
+      padding: 7px 10px;
+      color: #4a5568;
+      font-weight: 600;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #f0f4f8;
+    }
+    tr:last-child td { border-bottom: none; }
+
+    /* ---- trend / band CSS classes ---- */
+    .rising    { color: #276749; font-weight: 600; }
+    .sideways  { color: #718096; font-weight: 600; }
+    .falling   { color: #9b2c2c; font-weight: 600; }
+    .imbalance-up   { color: #276749; font-weight: 600; }
+    .inside-value   { color: #718096; font-weight: 600; }
+    .imbalance-down { color: #9b2c2c; font-weight: 600; }
+
+    /* ---- kv card (volatility / overnight) ---- */
+    .kv-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+    }
+    .kv-card {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 10px 14px;
+    }
+    .kv-card .kv-label {
+      font-size: 11px;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: 2px;
+    }
+    .kv-card .kv-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: #2d3748;
+    }
+
+    /* ---- levels sub-tables ---- */
+    .levels-group { margin-bottom: 18px; }
+    .levels-group h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #4a5568;
+      margin-bottom: 8px;
+    }
+    .levels-kv {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .levels-kv .kv-row {
+      display: flex;
+      justify-content: space-between;
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+    .levels-kv .kv-row .lk { color: #718096; }
+    .levels-kv .kv-row .lv { font-weight: 600; color: #2d3748; }
+
+    /* ---- unavailable ---- */
+    .unavailable { color: #a0aec0; font-style: italic; }
+
+    /* ---- calendar impact badges ---- */
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 1px 7px;
+      border-radius: 10px;
+    }
+    .badge-high   { background: #fed7d7; color: #9b2c2c; }
+    .badge-medium { background: #fefcbf; color: #744210; }
+    .badge-low    { background: #e2e8f0; color: #4a5568; }
+
+    /* ---- gamma tag ---- */
+    .gamma-tag {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .gamma-positive { background: #c6f6d5; color: #276749; }
+    .gamma-negative { background: #fed7d7; color: #9b2c2c; }
+
+    /* ---- print ---- */
+    @media print {
+      nav, .no-print { display: none !important; }
+      body { background: #fff; padding: 0; }
+      .section { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+      @page { margin: 20mm 15mm; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Header ===== -->
+  <div class="report-header">
+    <h1>Pre-Market Report</h1>
+    <div class="meta">Session: 2026-04-15 &nbsp;|&nbsp; Generated: 2026-04-15 14:45:54</div>
+  </div>
+
+  <!-- ===== Multi-Timeframe Context ===== -->
+  <div class="section">
+    <h2>Multi-Timeframe Context</h2>
+    
+      <table>
+        <thead>
+          <tr>
+            <th>Timeframe</th>
+            <th>Trend</th>
+            <th>Band Position</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            
+            
+              <tr>
+                <td>Yearly</td>
+                <td><span class=""></span></td>
+                <td>
+                  
+                  
+                    
+                  
+                </td>
+              </tr>
+            
+          
+            
+            
+              <tr>
+                <td>Quarterly</td>
+                <td><span class=""></span></td>
+                <td>
+                  
+                  
+                    
+                  
+                </td>
+              </tr>
+            
+          
+            
+            
+              <tr>
+                <td>Monthly</td>
+                <td><span class=""></span></td>
+                <td>
+                  
+                  
+                    
+                  
+                </td>
+              </tr>
+            
+          
+            
+            
+              <tr>
+                <td>Weekly</td>
+                <td><span class=""></span></td>
+                <td>
+                  
+                  
+                    
+                  
+                </td>
+              </tr>
+            
+          
+        </tbody>
+      </table>
+    
+  </div>
+
+  <!-- ===== Important Levels ===== -->
+  <div class="section">
+    <h2>Important Levels</h2>
+    
+      
+        <div class="levels-group">
+          <h3>NQ MenthorQ Levels</h3>
+          <div class="levels-kv">
+            
+              <div class="kv-row">
+                <span class="lk">Call Resistance</span>
+                <span class="lv">26000</span>
+              </div>
+            
+              <div class="kv-row">
+                <span class="lk">Put Support</span>
+                <span class="lv">24000</span>
+              </div>
+            
+              <div class="kv-row">
+                <span class="lk">Call Resistance 0dte</span>
+                <span class="lv">26000</span>
+              </div>
+            
+              <div class="kv-row">
+                <span class="lk">Put Support 0dte</span>
+                <span class="lv">25660</span>
+              </div>
+            
+              <div class="kv-row">
+                <span class="lk">Hvl</span>
+                <span class="lv">24740</span>
+              </div>
+            
+              <div class="kv-row">
+                <span class="lk">Hvl 0dte</span>
+                <span class="lv">25790</span>
+              </div>
+            
+              <div class="kv-row">
+                <span class="lk">Exp Move Max</span>
+                <span class="lv">26298.74</span>
+              </div>
+            
+              <div class="kv-row">
+                <span class="lk">Exp Move Min</span>
+                <span class="lv">25694.76</span>
+              </div>
+            
+          </div>
+        </div>
+      
+      
+        <div class="levels-group">
+          <h3>QQQ MenthorQ Levels</h3>
+          <div class="levels-kv">
+            
+              <div class="kv-row">
+                <span class="lk">Call Resistance</span>
+                <span class="lv">630.00</span>
+              </div>
+            
+              <div class="kv-row">
+                <span class="lk">Put Support</span>
+                <span class="lv">590.00</span>
+              </div>
+            
+              <div class="kv-row">
+                <span class="lk">Call Resistance 0dte</span>
+                <span class="lv">625.00</span>
+              </div>
+            
+              <div class="kv-row">
+                <span class="lk">Put Support 0dte</span>
+                <span class="lv">615.00</span>
+              </div>
+            
+              <div class="kv-row">
+                <span class="lk">Hvl</span>
+                <span class="lv">607.00</span>
+              </div>
+            
+              <div class="kv-row">
+                <span class="lk">Hvl 0dte</span>
+                <span class="lv">615.00</span>
+              </div>
+            
+              <div class="kv-row">
+                <span class="lk">Exp Move Max</span>
+                <span class="lv">636.18</span>
+              </div>
+            
+              <div class="kv-row">
+                <span class="lk">Exp Move Min</span>
+                <span class="lv">621.02</span>
+              </div>
+            
+          </div>
+          
+            <p style="margin-top:8px;font-size:12px;color:#718096;">QQQ-NQ Ratio: <strong>41.3649</strong></p>
+          
+        </div>
+      
+      
+    
+  </div>
+
+  <!-- ===== Volatility Summary ===== -->
+  <div class="section">
+    <h2>Volatility Summary</h2>
+    
+      <div class="kv-grid">
+        
+          <div class="kv-card">
+            <div class="kv-label">VVIX</div>
+            <div class="kv-value">95.4000015258789</div>
+          </div>
+        
+          <div class="kv-card">
+            <div class="kv-label">VIX</div>
+            <div class="kv-value">18.270000457763672</div>
+          </div>
+        
+          <div class="kv-card">
+            <div class="kv-label">RATIO</div>
+            <div class="kv-value">5.221674829533983</div>
+          </div>
+        
+          <div class="kv-card">
+            <div class="kv-label">CLASSIFICATION</div>
+            <div class="kv-value">medium</div>
+          </div>
+        
+      </div>
+    
+  </div>
+
+  <!-- ===== Economic Calendar ===== -->
+  <div class="section">
+    <h2>Economic Calendar</h2>
+    
+      <table>
+        <thead>
+          <tr>
+            <th>Release</th>
+            <th>Date / Time</th>
+            <th>Impact</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr>
+              <td>Fed Barr Speech</td>
+              <td>2026-04-15T12:30:00</td>
+              <td>
+                
+                <span class="badge badge-medium">Medium</span>
+              </td>
+            </tr>
+          
+            <tr>
+              <td>Fed Bowman Speech</td>
+              <td>2026-04-15T17:45:00</td>
+              <td>
+                
+                <span class="badge badge-medium">Medium</span>
+              </td>
+            </tr>
+          
+        </tbody>
+      </table>
+    
+  </div>
+
+  <!-- ===== Overnight Assessment ===== -->
+  <div class="section">
+    <h2>Overnight Assessment</h2>
+    
+      <div class="kv-grid">
+        
+          <div class="kv-card">
+            <div class="kv-label">OPEN</div>
+            <div class="kv-value">25985.75</div>
+          </div>
+        
+          <div class="kv-card">
+            <div class="kv-label">HIGH</div>
+            <div class="kv-value">26058.0</div>
+          </div>
+        
+          <div class="kv-card">
+            <div class="kv-label">LOW</div>
+            <div class="kv-value">25966.0</div>
+          </div>
+        
+          <div class="kv-card">
+            <div class="kv-label">CLOSE</div>
+            <div class="kv-value">26020.75</div>
+          </div>
+        
+          <div class="kv-card">
+            <div class="kv-label">VOLUME</div>
+            <div class="kv-value">54450.0</div>
+          </div>
+        
+          <div class="kv-card">
+            <div class="kv-label">AVG</div>
+            <div class="kv-value">426834.69</div>
+          </div>
+        
+          <div class="kv-card">
+            <div class="kv-label">ADR</div>
+            <div class="kv-value">437.92</div>
+          </div>
+        
+          <div class="kv-card">
+            <div class="kv-label">DATETIME</div>
+            <div class="kv-value">2026-04-15T00:00:00</div>
+          </div>
+        
+          <div class="kv-card">
+            <div class="kv-label">RVOL</div>
+            <div class="kv-value">0.12756695103671165</div>
+          </div>
+        
+          <div class="kv-card">
+            <div class="kv-label">ADR</div>
+            <div class="kv-value">437.92</div>
+          </div>
+        
+      </div>
+    
+  </div>
+
+  <!-- ===== Gamma Regime ===== -->
+  <div class="section">
+    <h2>Gamma Regime</h2>
+    
+      <span class="gamma-tag gamma-positive">
+        Positive
+      </span>
+    
+  </div>
+
+</body>
+</html>
