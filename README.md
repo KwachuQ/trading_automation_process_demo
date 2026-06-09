@@ -107,27 +107,6 @@ npm run dev
 
 Then visit `http://localhost:5173` to explore the dashboard.
 
-## Deploying for Free (Vercel & Render)
-
-This stack can be hosted completely for free so you can show off your demo online.
-
-1. **Frontend (Vercel)**
-   - Import this repository to Vercel.
-   - Framework Preset: `Vite`
-   - Build Command: `npm run build`
-   - Output Directory: `dist`
-   - Add environment variable `VITE_API_URL` pointing to your Render backend URL (e.g., `https://my-trading-demo.onrender.com/api`).
-
-2. **Backend (Render)**
-   - Create a new "Web Service" on Render and link this repository.
-   - Environment: `Python 3`
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: `export PYTHONPATH=. && python backend/scripts/seed_demo_data.py && uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
-   - Add environment variable `CORS_ORIGINS` with your Vercel URL (e.g., `https://my-frontend.vercel.app`).
-   - Add environment variable `DATABASE_URL` as `data/demo.db`.
-   
-*(Note: Render's free tier spins down after inactivity. On spin-up, the disk is wiped and `seed_demo_data.py` runs automatically, creating a fresh sandbox environment for every visitor—which is perfect for a public demo!)*
-
 ## Daily workflow
 
 1. Open the **Pre-Market page** in the browser.
