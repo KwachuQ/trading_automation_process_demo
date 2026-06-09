@@ -60,6 +60,8 @@ To test this application locally with mock data (protecting the author's trade h
 
 - Python 3.11+
 - Node.js 18+
+- **RapidAPI Key** for Trading Economics (Free tier works): Required only if you want to generate *new* pre-market reports.
+- *Note on Market Data:* The system uses `yfinance` to fetch VVIX/VIX data, which is completely free, does not require an API key, and works out of the box.
 
 ### Install & Configure
 
@@ -86,6 +88,8 @@ python backend/scripts/seed_demo_data.py
 ```
 
 ### Start the application
+
+If you have historical pre-market HTML reports you'd like to share as examples, place them in the `demo_reports/` directory.
 
 **Backend:**
 ```bash
@@ -178,4 +182,6 @@ Rules are edited through the **Feature Store** page in the UI. Changes take effe
 
 ## Reports
 
-Each generated report is saved as `reports/YYYY-MM-DD_premarket.html` — a self-contained HTML file with all data inline. No external dependencies are required to view it.
+Generated reports are saved as `reports/YYYY-MM-DD_premarket.html` — self-contained HTML files with all data inline. No external dependencies are required to view them.
+
+To share historical examples in this public demo, place your sample HTML files into the `demo_reports/` folder (which is tracked by Git, unlike the private `reports/` folder).
