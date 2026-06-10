@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import AsyncGenerator
 
 import uvicorn
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -16,7 +17,10 @@ from backend.db import get_connection, init_db
 from backend.routers import feature_store, ingestion, report, review, session
 from backend.state import app_state
 
-_CONFIG_PATH = Path(os.getenv("CONFIG_PATH", Path(__file__).parent.parent / "config" / "config.toml"))
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+load_dotenv(_PROJECT_ROOT / ".env")
+
+_CONFIG_PATH = Path(os.getenv("CONFIG_PATH", _PROJECT_ROOT / "config" / "config.toml"))
 
 
 def _setup_logging(cfg: Config) -> None:
