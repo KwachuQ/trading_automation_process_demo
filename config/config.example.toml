@@ -15,7 +15,18 @@ trades_list_file = "trading_list.txt"
 [calendar]
 rapiapi_host = "economic-calendar-api-tradingeconomics.p.rapidapi.com"
 rapiapi_url = "https://economic-calendar-api-tradingeconomics.p.rapidapi.com/calendar"
-# api_key = "your_api_key_here"
+impact_labels = ["High", "Medium"]
+watchlist = [
+    "Non-Farm Payrolls",
+    "Consumer Price Index",
+    "Federal Open Market Committee",
+    "Producer Price Index",
+    "Gross Domestic Product",
+    "Initial Jobless Claims",
+    "ISM Manufacturing",
+    "Retail Sales",
+    "Fed",
+]
 
 [volatility]
 tickers = ["^VVIX", "^VIX"]
