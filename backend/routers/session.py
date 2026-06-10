@@ -60,8 +60,8 @@ class ScenarioIn(BaseModel):
 
     scenario_number: int = Field(..., ge=1)
     setup_type: str
-    rationale: str = Field(..., min_length=1)
-    targets: str = Field(..., min_length=1)
+    rationale: str
+    targets: str
     invalidated_if: str = Field(default="")
 
 
