@@ -80,11 +80,13 @@ cp config/config.example.toml config/config.toml
 $env:PYTHONPATH="."
 $env:DATABASE_URL="data/demo.db"
 python backend/scripts/seed_demo_data.py
+python backend/scripts/generate_mock_trades.py
 
 # (Mac/Linux)
 # export PYTHONPATH="."
 # export DATABASE_URL="data/demo.db"
 # python backend/scripts/seed_demo_data.py
+# python backend/scripts/generate_mock_trades.py
 ```
 
 ### Start the application
@@ -160,3 +162,27 @@ Rules are edited through the **Feature Store** page in the UI. Changes take effe
 ## Reports
 
 Generated reports are saved as `reports/YYYY-MM-DD_premarket.html` — self-contained HTML files with all data inline. No external dependencies are required to view them.
+
+## Deploying for Free (Vercel & Render)
+
+This stack can be hosted completely for free so you can show off your demo online.
+
+### Frontend (Vercel)
+
+Import this repository to Vercel.
+- **Framework Preset:** Vite
+- **Build Command:** `npm run build`
+- **Output Directory:** `dist`
+- Add environment variable `VITE_API_URL` pointing to your Render backend URL (e.g., `https://my-trading-demo.onrender.com/api`).
+
+### Backend (Render)
+
+Create a new "Web Service" on Render and link this repository.
+- **Environment:** Python 3
+- **Build Command:** `pip install -r requirements.txt`
+- **Start Command:** `export PYTHONPATH=. && python backend/scripts/seed_demo_data.py && python backend/scripts/generate_mock_trades.py && uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
+- Add environment variable `CORS_ORIGINS` with your Vercel URL (e.g., `https://my-frontend.vercel.app`).
+- Add environment variable `DATABASE_URL` as `data/demo.db`.
+- Add environment variable `RAPIDAPI_KEY` with your Trading Economics API Key.
+
+*(Note: Render's free tier spins down after inactivity. On spin-up, the disk is wiped and the seed scripts run automatically, creating a fresh sandbox environment for every visitor—which is perfect for a public demo!)*

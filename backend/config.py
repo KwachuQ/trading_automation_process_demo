@@ -3,6 +3,7 @@ from __future__ import annotations
 import tomllib
 from dataclasses import dataclass
 from typing import Any
+from pathlib import Path
 
 from backend.ingestion.slope import DeltaSlopeConfig, SlopeConfig
 
@@ -20,7 +21,7 @@ class SierraChartConfig:
     yearly_vwap: str
     qqq_1min: str
     rvol_30min: str
-    saved_trade_activity_dir: str = "C:/SierraChart/SavedTradeActivity"
+    saved_trade_activity_dir: str = "data"
     trades_list_file: str = "TradesList.txt"
 
 
@@ -106,15 +107,27 @@ def _require(section: dict[str, Any], key: str, section_name: str) -> Any:
 
 
 def load_config(path: str) -> Config:
-    with open(path, "rb") as f:
+    p = Path(path)
+    if not p.exists():
+        fallback = p.parent / "config.example.toml"
+        if fallback.exists():
+            p = fallback
+        else:
+            raise FileNotFoundError(f"Config file not found: {path}")
+
+    with open(p, "rb") as f:
         raw = tomllib.load(f)
 
+    # Provide a sensible default for report output directory when the
+    # section is missing so the demo can run with minimal config files.
+    if "report" not in raw:
+        raw["report"] = {"output_dir": "reports"}
+
     for section in (
-        "sierra_chart", "volatility", "calendar", "report",
-        "scaling", "poller", "server", "logging", "slope",
+        "sierra_chart", "volatility", "calendar", "report"
     ):
         if section not in raw:
-            raise ValueError(f"Missing required config section: [{section}]")
+            raise ValueError(f"Missing required config section: [{section}] in {p}")
 
     sc_raw = raw["sierra_chart"]
     for key in _REQUIRED_SIERRA_CHART_KEYS:
@@ -131,7 +144,7 @@ def load_config(path: str) -> Config:
         yearly_vwap=sc_raw["yearly_vwap"],
         qqq_1min=sc_raw["qqq_1min"],
         rvol_30min=sc_raw["rvol_30min"],
-        saved_trade_activity_dir=sc_raw.get("saved_trade_activity_dir", "C:/SierraChart/SavedTradeActivity"),
+        saved_trade_activity_dir=sc_raw.get("saved_trade_activity_dir", "data"),
         trades_list_file=sc_raw.get("trades_list_file", "TradesList.txt"),
     )
 

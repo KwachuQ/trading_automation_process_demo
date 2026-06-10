@@ -26,3 +26,21 @@ logs/
 *.njsproj
 *.sln
 *.swp
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Generated output
+reports/
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Deployment (Vercel/Render)
+.vercel/
+.env.local
+.env.*.local

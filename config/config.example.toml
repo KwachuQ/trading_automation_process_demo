@@ -10,7 +10,8 @@ weekly_vwap    = "weekly_vwap.txt"
 daily_adr      = "daily_adr.txt"
 yearly_vwap    = "yearly_vwap.txt"
 rvol_30min     = "rvol_30min.txt"
-trades_list_file = "trading_list.txt"
+saved_trade_activity_dir = "data"
+trades_list_file = "TradesList.txt"
 
 [calendar]
 rapiapi_host = "economic-calendar-api-tradingeconomics.p.rapidapi.com"

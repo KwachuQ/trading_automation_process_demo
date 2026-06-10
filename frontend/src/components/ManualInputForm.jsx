@@ -13,11 +13,13 @@ function StatusLine({ status, label }) {
 }
 
 export default function ManualInputForm({ onComplete }) {
-  const [combinedString, setCombinedString] = useState('')
+  const [combinedString, setCombinedString] = useState(
+    "$NQ1!: Call Resistance, 26000, Put Support, 24000, HVL, 24740, 1D Min, 26049.27, 1D Max, 26681.73, Call Resistance 0DTE, 26050, Put Support 0DTE, 25970, HVL 0DTE, 25230\n\n$QQQ: Call Resistance, 640, Put Support, 590, HVL, 609.78, 1D Min, 629.72, 1D Max, 645.08, Call Resistance 0DTE, 640, Put Support 0DTE, 626, HVL 0DTE, 626"
+  )
   const [gammaNq, setGammaNq] = useState('positive')
   const [gammaQqq, setGammaQqq] = useState('positive')
-  const [expMoveMaxPctNq, setExpMoveMaxPctNq] = useState('')
-  const [expMoveMaxPctQqq, setExpMoveMaxPctQqq] = useState('')
+  const [expMoveMaxPctNq, setExpMoveMaxPctNq] = useState('1.57')
+  const [expMoveMaxPctQqq, setExpMoveMaxPctQqq] = useState('1.60')
   const [loading, setLoading] = useState(false)
   const [sectionStatus, setSectionStatus] = useState(null)
   const [error, setError] = useState(null)

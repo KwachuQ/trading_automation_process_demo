@@ -12,6 +12,29 @@ const SETUP_META = {
   ML:  { label: 'MOMENTUM LONG',  dir: 'bull' },
 }
 
+const EXAMPLE_SCENARIOS = [
+  {
+    setup_type: 'MRS',
+    rationale: 'Price rejected from key resistance level with bearish divergence on 5m chart. Looking for a move down to the nearest support.',
+    targets: 'TP1: 20500\nTP2: 20450\nSL: 20600'
+  },
+  {
+    setup_type: 'ML',
+    rationale: 'Breakout above the pre-market high with strong volume. Expecting continuation towards the next daily liquidity pool.',
+    targets: 'TP1: 20750\nTP2: 20800\nSL: 20650'
+  },
+  {
+    setup_type: 'MRL',
+    rationale: 'Sweep of the overnight low, followed by a strong bullish structure shift. Good R:R for a bounce play.',
+    targets: 'TP1: 20400\nTP2: 20500\nSL: 20300'
+  },
+  {
+    setup_type: 'MS',
+    rationale: 'Breakdown of the Asian session consolidation box. Momentum is clearly downwards. Riding the trend.',
+    targets: 'TP1: 20200\nTP2: 20100\nSL: 20350'
+  }
+]
+
 function parseTargets(raw) {
   if (!raw) return []
   return raw
@@ -251,14 +274,27 @@ export default function Scenarios({ sessionDate }) {
             />
           ))}
         </div>
-        <button
-          className="sc-add-btn"
-          onClick={() => { setSelectedIdx(null); setAdding(true) }}
-          disabled={saving || adding}
-        >
-          <Plus size={13} />
-          Add Scenario
-        </button>
+        <div style={{ display: 'flex', gap: '8px', padding: '0 10px 10px' }}>
+          <button
+            className="sc-add-btn"
+            onClick={() => { setSelectedIdx(null); setAdding(true) }}
+            disabled={saving || adding}
+            style={{ flex: 1, margin: 0 }}
+          >
+            <Plus size={13} />
+            Add Scenario
+          </button>
+          {scenarios.length === 0 && (
+            <button
+              className="sc-add-btn"
+              onClick={() => persistAll(EXAMPLE_SCENARIOS)}
+              disabled={saving}
+              style={{ flex: 1, margin: 0, background: 'rgba(255, 255, 255, 0.05)' }}
+            >
+              Load Examples
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )

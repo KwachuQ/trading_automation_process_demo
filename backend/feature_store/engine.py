@@ -199,36 +199,61 @@ def _parse_in_value(raw: Any) -> list:
     return [v.strip().strip('"\'') for v in str(raw).split(",") if v.strip()]
 
 
+def _parse_range(raw: Any) -> tuple[float, float] | None:
+    """Parse a two-value range from a list/tuple or comma-separated string."""
+    try:
+        if isinstance(raw, (list, tuple)):
+            if len(raw) != 2:
+                return None
+            return float(raw[0]), float(raw[1])
+        parts = [p.strip().strip('"\'') for p in str(raw).split(",") if p.strip()]
+        if len(parts) != 2:
+            return None
+        return float(parts[0]), float(parts[1])
+    except (TypeError, ValueError, IndexError):
+        return None
+
+
+def _handle_between(lhs: Any, rhs: Any) -> bool:
+    rng = _parse_range(rhs)
+    if rng is None:
+        return False
+    low, high = rng
+    return low <= float(lhs) <= high
+
+
+def _numeric_cmp_factory(op):
+    def _cmp(lhs: Any, rhs: Any) -> bool:
+        return op(float(lhs), float(rhs))
+    return _cmp
+
+
 def _evaluate_value(field_value: Any, operator: str, expected_value: Any) -> bool:
-    """Evaluate a single operator condition against a given value."""
     if field_value is None:
         return False
 
     op = operator.strip()
 
-    if op == "==":
-        return field_value == expected_value
-    if op == "!=":
-        return field_value != expected_value
-    if op == "in":
-        return str(field_value) in [str(v) for v in _parse_in_value(expected_value)]
-    if op == "between":
-        # Parse range: expects a list/tuple of two items or comma-separated string
-        try:
-            if isinstance(expected_value, list):
-                if len(expected_value) != 2:
-                    return False
-                low = float(expected_value[0])
-                high = float(expected_value[1])
-            else:
-                parts = [float(x.strip()) for x in str(expected_value).split(",") if x.strip()]
-                if len(parts) != 2:
-                    return False
-                low, high = parts[0], parts[1]
-            return low <= float(field_value) <= high
-        except (TypeError, ValueError, IndexError):
-            return False
+    handlers = {
+        "in": lambda l, r: str(l) in _parse_in_value(r),
+        "between": _handle_between,
+        "==": lambda l, r: l == r,
+        "!=": lambda l, r: l != r,
+        ">": _numeric_cmp_factory(lambda a, b: a > b),
+        "<": _numeric_cmp_factory(lambda a, b: a < b),
+        ">=": _numeric_cmp_factory(lambda a, b: a >= b),
+        "<=": _numeric_cmp_factory(lambda a, b: a <= b),
+    }
 
+    handler = handlers.get(op)
+    if handler is None:
+        return False
+
+    try:
+        return bool(handler(field_value, expected_value))
+    except (TypeError, ValueError, IndexError):
+        return False
+    
     # Numeric comparisons — only valid when both sides are numeric
     try:
         lhs = float(field_value)
@@ -322,7 +347,7 @@ def evaluate_scenario(
 
     confidence = best_matched / best_total if best_total > 0.0 else 0.0
 
-    if best_rule is None or best_matched == 0.0 or confidence < 0.5:
+    if best_rule is None or confidence < 0.5:
         return ScenarioResult(
             scenario_name="Unclassified",
             parent_regime="",
@@ -351,32 +376,49 @@ def evaluate_scenario(
 # ---------------------------------------------------------------------------
 
 
+def _scenario_field_value(
+    indicators: IndicatorSnapshot,
+    active_scenario: ScenarioResult | None,
+    indicator: str,
+) -> Any:
+    """Return the field value either from `active_scenario` (for scenario attrs)
+    or from the indicator snapshot."""
+    if active_scenario is not None and indicator in ("scenario_name", "parent_regime", "subtype"):
+        return getattr(active_scenario, indicator, None)
+    return _get_field(indicators, indicator)
+
+
+def _criterion_contribution(crit: ScoringCriterion, matched: bool) -> float:
+    """Return the weighted contribution for a single criterion."""
+    if "penalty" in crit.name.lower():
+        return 0.0 if matched else crit.weight
+    return crit.weight if matched else 0.0
+
+
 def score_setup(
     indicators: IndicatorSnapshot,
     criteria: list[ScoringCriterion],
     active_scenario: ScenarioResult | None = None,
 ) -> SetupScore:
-    """Compute a 0–100 composite trade-setup score.
+    """Return a 0–100 trade-setup score and per-criterion breakdown.
 
-    Algorithm
-    ---------
-    For every active criterion:
-    1. Evaluate its single condition against ``indicators``.
-    2. If matched, add ``criterion.weight`` to ``matched_weight``.
-    3. Always add ``criterion.weight`` to ``total_weight`` (the normaliser).
-    4. ``total_score = (matched_weight / total_weight) * 100``.
+Evaluate each active `ScoringCriterion` against a resolved field value
+(use `active_scenario` for `"scenario_name"`, `"parent_regime"`, `"subtype"`,
+otherwise read from `indicators`). Penalty criteria (name contains "penalty",
+case-insensitive) contribute their weight when NOT matched; normal criteria
+contribute their weight when matched.
 
-    ``None`` fields cause their criterion to be skipped (not matched), so
-    the score degrades gracefully in early-session partial-data situations.
+Score is (matched_weight / total_weight) * 100, rounded to 2 decimals.
+If total weight is effectively zero the score is 0.0.
 
-    Args:
-        indicators:      Live snapshot of all indicator values.
-        criteria:        List of active ``ScoringCriterion`` objects.
-        active_scenario: Optional ``ScenarioResult`` for the active scenario.
+Args:
+    indicators: `IndicatorSnapshot`
+    criteria: list[`ScoringCriterion`]
+    active_scenario: Optional[`ScenarioResult`]
 
-    Returns:
-        ``SetupScore`` with normalised score and per-criterion breakdown.
-    """
+Returns:
+    `SetupScore` with `total_score` and `breakdown` (per-criterion dicts).
+"""
     matched_weight: float = 0.0
     total_weight: float = 0.0
     breakdown: list[dict] = []
@@ -386,20 +428,10 @@ def score_setup(
             continue
 
         cond = crit.condition
-        
-        # Intercept scenario attributes
-        if active_scenario is not None and cond.indicator in ("scenario_name", "parent_regime", "subtype"):
-            field_value = getattr(active_scenario, cond.indicator, None)
-        else:
-            field_value = _get_field(indicators, cond.indicator)
-            
+        field_value = _scenario_field_value(indicators, active_scenario, cond.indicator)
         matched = _evaluate_value(field_value, cond.operator, cond.value)
-        
-        is_penalty = "penalty" in crit.name.lower()
-        if is_penalty:
-            contribution = 0.0 if matched else crit.weight
-        else:
-            contribution = crit.weight if matched else 0.0
+
+        contribution = _criterion_contribution(crit, matched)
 
         matched_weight += contribution
         total_weight += crit.weight
@@ -412,9 +444,8 @@ def score_setup(
             }
         )
 
-    if total_weight == 0.0:
-        total_score = 0.0
-    else:
-        total_score = round((matched_weight / total_weight) * 100, 2)
+    total_score = 0.0 if abs(total_weight) < 1e-12 else round((matched_weight / total_weight) * 100, 2)
 
     return SetupScore(total_score=total_score, breakdown=breakdown)
+
+
