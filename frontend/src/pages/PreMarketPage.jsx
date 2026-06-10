@@ -4,7 +4,7 @@ import ImportantLevels from '../components/ImportantLevels'
 import Scenarios from '../components/Scenarios'
 import { t, CardHeader, Btn, InlineMsg } from '../components/ui'
 import { usePreMarket } from '../context/premarket'
-import api from '../api'
+import api, { API_BASE } from '../api'
 
 function ReportListDropdown({ reportList, activeDate, onSelect, align = 'left' }) {
   const [open, setOpen] = useState(false)
@@ -200,7 +200,7 @@ export default function PreMarketPage() {
                     {activeReport.session_date}
                   </span>
                   <a
-                    href={`/api/report/view/${activeReport.session_date}`}
+                    href={`${API_BASE}/report/view/${activeReport.session_date}`}
                     target="_blank"
                     rel="noreferrer"
                     style={{ textDecoration: 'none' }}
@@ -214,7 +214,7 @@ export default function PreMarketPage() {
                   />
                 </div>
                 <iframe
-                  src={`/api/report/view/${activeReport.session_date}?v=${reportKey}`}
+                  src={`${API_BASE}/report/view/${activeReport.session_date}?v=${reportKey}`}
                   title="Pre-Market Report Preview"
                 />
               </>

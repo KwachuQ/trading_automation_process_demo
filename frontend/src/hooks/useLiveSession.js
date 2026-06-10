@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { API_BASE } from '../api';
 
 export function useLiveSession() {
   const [data, setData] = useState(null);
@@ -11,7 +12,7 @@ export function useLiveSession() {
   const fetchLiveSession = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/session/live');
+      const res = await fetch(`${API_BASE}/session/live`);
       if (!res.ok) throw new Error('Failed to fetch live session data');
       const result = await res.json();
       setData(result);
@@ -25,7 +26,7 @@ export function useLiveSession() {
 
   const fetchScenarios = useCallback(async (dateStr) => {
     try {
-      const res = await fetch(`/api/session/scenarios/${dateStr}`);
+      const res = await fetch(`${API_BASE}/session/scenarios/${dateStr}`);
       if (!res.ok) throw new Error('Failed to fetch scenarios');
       const result = await res.json();
       setScenarios(result);
@@ -36,7 +37,7 @@ export function useLiveSession() {
 
   const saveScenarios = useCallback(async (dateStr, scenarioList) => {
     try {
-      const res = await fetch('/api/session/scenarios', {
+      const res = await fetch(`${API_BASE}/session/scenarios`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -55,7 +56,7 @@ export function useLiveSession() {
 
   const deleteScenario = useCallback(async (dateStr, scenarioNumber) => {
     try {
-      const res = await fetch(`/api/session/scenarios/${dateStr}/${scenarioNumber}`, {
+      const res = await fetch(`${API_BASE}/session/scenarios/${dateStr}/${scenarioNumber}`, {
         method: 'DELETE'
       });
       if (!res.ok) throw new Error('Failed to delete scenario');
@@ -76,7 +77,7 @@ export function useLiveSession() {
     // Optimistic update.
     setActiveSetupType(setupType);
     try {
-      const res = await fetch('/api/session/active-setup', {
+      const res = await fetch(`${API_BASE}/session/active-setup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ setup_type: setupType }),
@@ -96,7 +97,7 @@ export function useLiveSession() {
    */
   const fetchActiveSetup = useCallback(async () => {
     try {
-      const res = await fetch('/api/session/active-setup');
+      const res = await fetch(`${API_BASE}/session/active-setup`);
       if (!res.ok) return;
       const { setup_type } = await res.json();
       setActiveSetupType(setup_type ?? null);
