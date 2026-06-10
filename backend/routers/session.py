@@ -59,7 +59,7 @@ class ScenarioIn(BaseModel):
     """Input model for a single trading scenario."""
 
     scenario_number: int = Field(..., ge=1)
-    setup_type: Literal["MRS", "MS", "MRL", "ML"]
+    setup_type: str
     rationale: str = Field(..., min_length=1)
     targets: str = Field(..., min_length=1)
     invalidated_if: str = Field(default="")

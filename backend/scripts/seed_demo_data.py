@@ -158,12 +158,12 @@ def seed_demo_data():
         print("Inserting mock scenarios...")
         cursor.execute(
             """INSERT INTO scenarios (session_date, scenario_number, setup_type, rationale, targets, invalidated_if)
-               VALUES (?, 1, 'Long Breakout', 'Price above VWAP, potential short squeeze', 'Previous Day High (PDH)', 'Breaks below IB low')""",
+               VALUES (?, 1, 'ML', 'Price above VWAP, potential short squeeze', 'Previous Day High (PDH)', 'Breaks below IB low')""",
             (today,)
         )
         cursor.execute(
             """INSERT INTO scenarios (session_date, scenario_number, setup_type, rationale, targets, invalidated_if)
-               VALUES (?, 2, 'Mean Reversion Short', 'Overextended in high volatility regime', 'VWAP', 'Closes above 5min resistance')""",
+               VALUES (?, 2, 'MRS', 'Overextended in high volatility regime', 'VWAP', 'Closes above 5min resistance')""",
             (today,)
         )
     
