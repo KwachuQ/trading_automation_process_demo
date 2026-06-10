@@ -1,16 +1,23 @@
 [sierra_chart]
 data_dir = "data"
-nq_1min   = "nq_1min.txt"
-qqq_1min  = "qqq_1min.txt"
-rth_500v  = "rth_500v.txt"
-eth_750v  = "eth_750v.txt"
+nq_1min = "nq_1min.txt"
+min_nq = "nq_1min.txt"
+rth_500v = "rth_500v.txt"
+eth_750v = "eth_750v.txt"
 quarterly_vwap = "quarterly_vwap.txt"
-monthly_vwap   = "monthly_vwap.txt"
-weekly_vwap    = "weekly_vwap.txt"
-daily_adr      = "daily_adr.txt"
-yearly_vwap    = "yearly_vwap.txt"
-rvol_30min     = "rvol_30min.txt"
-trades_list_file = "trading_list.txt"
+monthly_vwap = "monthly_vwap.txt"
+weekly_vwap = "weekly_vwap.txt"
+daily_adr = "daily_adr.txt"
+yearly_vwap = "yearly_vwap.txt"
+qqq_1min = "qqq_1min.txt"
+rvol_30min = "rvol_30min.txt"
+saved_trade_activity_dir = "data"
+trades_list_file = "TradesList.txt"
+
+
+[volatility]
+tickers = ["^VVIX", "^VIX"]
+ratio_thresholds = [5.0, 6.0]
 
 [calendar]
 rapiapi_host = "economic-calendar-api-tradingeconomics.p.rapidapi.com"
@@ -28,12 +35,51 @@ watchlist = [
     "Fed",
 ]
 
-[volatility]
-tickers = ["^VVIX", "^VIX"]
-ratio_thresholds = [5.0, 6.0]
-
 [report]
 output_dir = "reports"
 
+[scaling]
+thresholds = [
+    { equity = 10000, contracts = 1 },
+    { equity = 25000, contracts = 2 },
+    { equity = 50000, contracts = 3 },
+    { equity = 100000, contracts = 5 },
+]
+
 [poller]
 interval_seconds = 120
+
+
+[server]
+host = "127.0.0.1"
+port = 8000
+
+[slope]
+short_window = 8
+long_window = 21
+vol_lookback = 21
+persistence_bars = 2
+entry_threshold = 1.0
+exit_threshold = 0.4
+
+# Delta (cumulative volume delta) slope classifier.
+# Uses raw Theil-Sen slope with absolute thresholds — no log-transform —
+# so it works correctly when the cumulative delta MA crosses zero.
+[slope_delta]
+n_bars = 8
+entry_threshold = 0.003
+exit_threshold = 0.001
+
+# RVOL slope classifier.
+# Bounded indicators produce lower z-scores. Optimised entry/exit thresholds
+# prevent it from flagging "sideways" too often.
+[slope_rvol]
+entry_threshold = 0.2
+exit_threshold = 0.05
+
+
+[logging]
+level = "INFO"
+file = "logs/trading_automation.log"
+max_bytes = 10485760
+backup_count = 5
