@@ -115,7 +115,7 @@ Then visit `http://localhost:5173` to explore the dashboard.
 3. Click **Run ingestion** to start importing data. 
 4. Click **Generate Report** when the ingestion is done. The report will be opened automatically. 
 5. You can copy/paste recalculated options levels from the tile below report. 
-6. Define your trade setups or click **Load defaults** to load the default trade setups. 
+6. Click **Add scenario** and define your trade setups. 
 7. Monitor the live session on **Session** page.
 8. You can modify market scenarion and scoring criteria in **Feature Store**.
 9. Review trades in **Review** page. **Import** trades to load default data. 
