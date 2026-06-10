@@ -60,7 +60,6 @@ To test this application locally with mock data (protecting the author's trade h
 
 - Python 3.11+
 - Node.js 18+
-- **RapidAPI Key** for Trading Economics (Free tier works): Required only if you want to generate *new* pre-market reports.
 - *Note on Market Data:* The system uses `yfinance` to fetch VVIX/VIX data, which is completely free, does not require an API key, and works out of the box.
 
 ### Install & Configure
@@ -111,11 +110,15 @@ Then visit `http://localhost:5173` to explore the dashboard.
 
 ## Daily workflow
 
-1. Open the **Pre-Market page** in the browser.
-2. Fill in MenthorQ options levels and gamma regime, then click **Generate Report**.
-3. Open the generated HTML report from `reports/YYYY-MM-DD_premarket.html`.
-4. Switch to **Session Dashboard**, enter your two scenarios, and click **Start Polling**.
-5. After the session, go to **Review**, upload `trading_list.txt`, review auto-tags, and export to `trading_dashboard`.
+1. Double-click the **TAP.bat** - it starts backend + frontend and opens browser automatically.
+2. Fill in MenthorQ options levels and gamma regime (or just click "Save" with defaults).
+3. Click **Run ingestion** to start importing data. 
+4. Click **Generate Report** when the ingestion is done. The report will be opened automatically. 
+5. You can copy/paste recalculated options levels from the tile below report. 
+6. Define your trade setups or click **Load defaults** to load the default trade setups. 
+7. Monitor the live session on **Session** page.
+8. You can modify market scenarion and scoring criteria in **Feature Store**.
+9. Review trades in **Review** page. **Import** trades to load default data. 
 
 ## Tests
 
@@ -162,27 +165,3 @@ Rules are edited through the **Feature Store** page in the UI. Changes take effe
 ## Reports
 
 Generated reports are saved as `reports/YYYY-MM-DD_premarket.html` — self-contained HTML files with all data inline. No external dependencies are required to view them.
-
-## Deploying for Free (Vercel & Render)
-
-This stack can be hosted completely for free so you can show off your demo online.
-
-### Frontend (Vercel)
-
-Import this repository to Vercel.
-- **Framework Preset:** Vite
-- **Build Command:** `npm run build`
-- **Output Directory:** `dist`
-- Add environment variable `VITE_API_URL` pointing to your Render backend URL (e.g., `https://my-trading-demo.onrender.com/api`).
-
-### Backend (Render)
-
-Create a new "Web Service" on Render and link this repository.
-- **Environment:** Python 3
-- **Build Command:** `pip install -r requirements.txt`
-- **Start Command:** `export PYTHONPATH=. && python backend/scripts/seed_demo_data.py && python backend/scripts/generate_mock_trades.py && uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
-- Add environment variable `CORS_ORIGINS` with your Vercel URL (e.g., `https://my-frontend.vercel.app`).
-- Add environment variable `DATABASE_URL` as `data/demo.db`.
-- Add environment variable `RAPIDAPI_KEY` with your Trading Economics API Key.
-
-*(Note: Render's free tier spins down after inactivity. On spin-up, the disk is wiped and the seed scripts run automatically, creating a fresh sandbox environment for every visitor—which is perfect for a public demo!)*
